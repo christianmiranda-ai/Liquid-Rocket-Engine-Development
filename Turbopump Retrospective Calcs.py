@@ -38,17 +38,38 @@ import numpy
 # Section 1: {Impeller Geometry Equations} | Calculating Specific Speed (Omega_s), Exit Flow Coefficient (Phi_t)
 # and Head coefficient (Psi)
 
-# initialization
-g_constant = 9.81 # acceleration due to gravity (m/s^2)
-omega = 20000 # shaft speed (RPM) -- this value was CHOSEN
-delta_p = 1 # change in pressure (Pa) -- define later
-Q = 1 # volumetric flow rate (m^3) -- define later
+class impeller:
+    def __init__(self,omega, delta_p, Q, g=9.81):
+        # initialization
+        self.g = g # acceleration due to gravity (m/s^2)
+        self.omega = omega # shaft speed (RPM) -- this value was CHOSEN
+        self.delta_p = delta_p # change in pressure (Pa) -- define later
+        self.Q = Q # volumetric flow rate (m^3) -- define later
 
-delta_H = delta_p / g_constant # change in fluid head equation (m)
-Omega_s = (omega * math.sqrt(Q) / ((g*delta_H)**(3/4))) # specific speed equation (unitless)
-phi_t = 0.1715*math.sqrt(Omega_s) # exit flow coefficient equation (unitless)
-psi = (0.4 / ((Omega_s)**(1/4))) # Head coefficient equation (unitless)
+    def delta_H(self):
+        # calcs
+        return self.delta_p / self.g
+    
+    def Omega_s(self):
+        # calcs
+        return ((self.omega * math.sqrt(self.Q)) / ((self.g * self.delta_H)**(3/4)))
+    
+    def phi_t(self):
+        # calc
+        return (0.1715*math.sqrt(self.Omega_s))
+    
+    def psi_h(self):
+        # calc
+        return ((0.4) / (self.Omega_s**(1/4)))
+        
+    def dispRes_impeller(self):
+        print(f"Delta H: {self.delta_H:.4f} m")
+        print(f"Specific Speed (Omega_s): {self.Omega_s:.4f}")
+        print(f"Exit Flow Coefficient (Phi_t): {self.phi_t:.4f}")
+        print(f"Head Coefficient (Psi_h): {self.psi_h:.4f}")
 
+impeller = impeller(omega=20000,delta_p=1,Q=1)
+impeller.dispRes_impeller()
 # ---------------------------------------------------------------------------------------------------
 
 # Section 2: {Profile Curve Equations} | Calculating Eye Radius (r_eye), Exit Radius (r_exit), and Exit Width (w_exit)
@@ -58,7 +79,7 @@ phi_e = 0.25 # eye flow coefficient (unitless) -- this value was CHOSEN per Sect
 r_inner = 1 # inner radius (m) -- define later
 
 r_eye = (Q / (math.pi * omega *phi_e)*(1 - ((r_inner**2) / (r_eye**2)))) # eye radius equation (m) -- use MATLAB solver?
-r_exit = ((1/omega)*math.sqrt(g_constant*delta_H/psi)) # exit radius equation (m)
+r_exit = ((1/omega)*math.sqrt(g_constant*delta_H/psi_h)) # exit radius equation (m)
 w_exit = (Q / 2*math.pi*omega*(r_exit**2)*phi_e) # exit width (m) 
 
 # ---------------------------------------------------------------------------------------------------
